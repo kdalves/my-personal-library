@@ -82,7 +82,10 @@ jobs:
       - name: Setup Database
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+          DATABASE_NAME_TEST: my_personal_library_test
+          DATABASE_USER_TEST: <%= ENV['DATABASE_USER_TEST'] %>
+          DATABASE_PASSWORD_TEST: <%= ENV['DATABASE_PASSWORD_TEST'] %>
+          DATABASE_HOST_TEST: localhost
         run: |
           bin/rails db:create
           bin/rails db:migrate
@@ -90,7 +93,10 @@ jobs:
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432
+          DATABASE_NAME_TEST: my_personal_library_test
+          DATABASE_USER_TEST:  <%= ENV['DATABASE_USER_TEST'] %>
+          DATABASE_PASSWORD_TEST: <%= ENV['DATABASE_PASSWORD_TEST'] %>
+          DATABASE_HOST_TEST: localhost
         run: bin/rails test
 
       - name: Keep screenshots from failed system tests
