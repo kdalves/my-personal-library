@@ -17,8 +17,8 @@ Este é um projeto desenvolvido como parte do curso de Ruby on Rails. O objetivo
 
 ```bash
 # Clone o repositório
-git clone https://github.com/seu-usuario/nome-do-projeto.git
-cd nome-do-projeto
+git clone https://github.com/kdalves/my-personal-library.git
+cd my-personal-library
 
 # abra o VSCode
 # Inicie o projeto dentro do dev container
