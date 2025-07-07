@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16.9
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: my_personal_library_development
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  app-dev:
+    build:
+      context: ./my-personal-library
+      dockerfile: Dockerfile
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - ./my-personal-library:/usr/src/app
+    ports:
+      - "3000:3000"               # Usa porta 3000 para dev
+    depends_on:
+      - db
+    environment:
+      - RAILS_ENV=${RAILS_ENV_LOCAL}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE_LOCAL}
+      - DATABASE_HOST=${DATABASE_HOST_LOCAL}
+      - DATABASE_USER=${DATABASE_USER_LOCAL}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD_LOCAL}
+      - DATABASE_NAME=${DATABASE_NAME_LOCAL}
+
+  app-prod:
+    build:
+      context: ./my-personal-library
+      dockerfile: Dockerfile
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    volumes:
+      - ./my-personal-library:/usr/src/app
+    ports:
+      - "3001:3000"               # Usa porta 3001 para não conflitar
+    depends_on:
+      - db
+    environment:
+      - RAILS_ENV=${RAILS_ENV}
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE}
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+
+volumes:
+  pgdata:
