@@ -82,17 +82,17 @@ jobs:
       - name: Setup Database
         env:
           RAILS_ENV: test
-          DATABASE_USER: ${{ secrets.PG_USER }}
-          DATABASE_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.PG_HOST }}
+          DATABASE_USER: ${{ secrets.POSTGRES_USER }}
+          DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
         run: bin/rails db:prepare
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_USER: ${{ secrets.PG_USER }}
-          DATABASE_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.PG_HOST }}
+          DATABASE_USER: ${{ secrets.POSTGRES_USER }}
+          DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
         run: bin/rails test
 
       - name: Keep screenshots from failed system tests
