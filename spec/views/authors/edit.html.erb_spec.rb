@@ -15,7 +15,6 @@ RSpec.describe "authors/edit", type: :view do
     render
 
     assert_select "form[action=?][method=?]", author_path(author), "post" do
-
       assert_select "input[name=?]", "author[name]"
     end
   end
