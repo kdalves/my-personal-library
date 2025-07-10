@@ -84,7 +84,7 @@ jobs:
           RAILS_ENV: test
           DATABASE_USER: ${{ secrets.POSTGRES_USER }}
           DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
+          DATABASE_HOST: ${{ secrets.POSTGRES_HOST }}
         run: bin/rails db:prepare
 
       - name: Run tests
@@ -92,7 +92,7 @@ jobs:
           RAILS_ENV: test
           DATABASE_USER: ${{ secrets.POSTGRES_USER }}
           DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
+          DATABASE_HOST: ${{ secrets.POSTGRES_HOST }}
         run: bin/rails test
 
       - name: Keep screenshots from failed system tests
