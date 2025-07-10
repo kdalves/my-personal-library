@@ -60,8 +60,8 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -82,17 +82,21 @@ jobs:
       - name: Setup Database
         env:
           RAILS_ENV: test
-          DATABASE_USER: ${{ secrets.POSTGRES_USER }}
-          DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.POSTGRES_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER_TEST }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD_TEST }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME_TEST }}
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE_TEST }}
         run: bin/rails db:prepare
 
       - name: Run tests
         env:
           RAILS_ENV: test
-          DATABASE_USER: ${{ secrets.POSTGRES_USER }}
-          DATABASE_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          DATABASE_HOST: ${{ secrets.POSTGRES_HOST }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER_TEST }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD_TEST }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST_TEST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME_TEST }}
+          SECRET_KEY_BASE: ${{ secrets.SECRET_KEY_BASE_TEST }}
         run: bin/rails test
 
       - name: Keep screenshots from failed system tests
