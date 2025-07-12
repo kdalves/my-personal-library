@@ -1,6 +1,6 @@
 {
   "name": "Rails Dev & Prod Codespace",
-  "dockerComposeFile": "docker-compose.yml",
+  "dockerComposeFile": ".devcontainer/docker-compose.yml",
   "service": "app-dev",
   "workspaceFolder": "/rails",
 
