@@ -1,3 +1,4 @@
+version: "3.9"
 services:
   db:
     image: postgres:16.9
@@ -23,18 +24,18 @@ services:
     depends_on:
       - db
     environment:
-      RAILS_ENV: ${RAILS_ENV_LOCAL}
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE_LOCAL}
-      DATABASE_HOST: ${DATABASE_HOST_LOCAL}
-      DATABASE_USER: ${DATABASE_USER_LOCAL}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD_LOCAL}
-      DATABASE_NAME: ${DATABASE_NAME_LOCAL}
+      RAILS_ENV: development
+      DATABASE_HOST: db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_NAME: ${DATABASE_NAME}
+      SECRET_KEY_BASE: dummy_key
 
   app-prod:
     build:
       context: .
       dockerfile: .devcontainer/Dockerfile
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
+    command: bash -c "mkdir -p tmp/pids && rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0"
     volumes:
       - .:/rails
     ports:
@@ -42,12 +43,12 @@ services:
     depends_on:
       - db
     environment:
-      RAILS_ENV: ${RAILS_ENV}
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
-      DATABASE_HOST: ${DATABASE_HOST}
-      DATABASE_USER: ${DATABASE_USER}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+      RAILS_ENV: production
+      DATABASE_HOST: db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       DATABASE_NAME: ${DATABASE_NAME}
+      SECRET_KEY_BASE: dummy_key
 
 volumes:
   pgdata:

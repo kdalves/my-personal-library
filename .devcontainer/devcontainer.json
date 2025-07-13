@@ -2,13 +2,13 @@
   "name": "Rails Dev Container",
   "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app-dev",
-  "workspaceFolder": "/workspaces/my-personal-library",
-  "postCreateCommand": "bundle install && bin/rails db:prepare",
+  "workspaceFolder": "/rails",
+  "postCreateCommand": "bin/rails db:prepare",
   "customizations": {
     "vscode": {
       "extensions": ["rebornix.Ruby", "castwide.solargraph"]
     }
   },
-  "forwardPorts": [3000, 5432],
+  "forwardPorts": [3000, 3001, 5432],
   "remoteUser": "vscode"
 }

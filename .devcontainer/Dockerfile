@@ -10,68 +10,46 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.2.2
-FROM ruby:$RUBY_VERSION-slim AS base
+FROM ruby:$RUBY_VERSION-slim
 
-# Define a working directory
+# Define o diretório de trabalho padrão
 WORKDIR /rails
 
-# Install system dependencies
+# Instala dependências do sistema
 RUN apt-get update -qq && apt-get install -y \
   build-essential \
   libpq-dev \
   nodejs \
   yarn \
-  git
+  git \
+  libyaml-dev \
+  pkg-config \
+  curl
 
-# Create non-root user for Codespaces
-RUN useradd -m -u 1000 codespace
-USER codespace
+# Cria o usuário 'vscode' com ID 1000 (padrão do Codespaces)
+RUN useradd -m -u 1000 vscode
+USER vscode
 
-# Set common environment variables
+# Define variáveis de ambiente
 ENV BUNDLE_PATH="/usr/local/bundle"
 
-# -------------------
-# Build stage
-# -------------------
-FROM base AS build
+# Copia os arquivos do projeto
+COPY --chown=vscode:vscode Gemfile Gemfile.lock ./
 
-WORKDIR /rails
-
-# Install additional build dependencies
-RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y libyaml-dev pkg-config && \
-    rm -rf /var/lib/apt/lists /var/cache/apt/archives
-
-# Install gems
-COPY --chown=codespace:codespace Gemfile Gemfile.lock ./
+# Instala o bundler e as gems
 RUN gem install bundler && \
     bundle install --with development test && \
-    rm -rf ~/.bundle "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-# Copy app source
-COPY --chown=codespace:codespace . .
+# Copia o restante da aplicação
+COPY --chown=vscode:vscode . .
 
-# Precompile bootsnap
+# Precompila o bootsnap
 RUN bundle exec bootsnap precompile app/ lib/
 
-# -------------------
-# Final stage
-# -------------------
-FROM base AS final
-
-WORKDIR /rails
-
-# Copy the app and gems from the build stage
-COPY --from=build /rails /rails
-COPY --from=build /usr/local/bundle /usr/local/bundle
-
-# Create runtime user
-RUN groupadd --system --gid 1000 rails && \
-    useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
-    chown -R rails:rails db log storage tmp
-USER 1000:1000
+# Garante que os diretórios essenciais existam e tenham permissão
+RUN mkdir -p tmp/pids log storage && \
+    chown -R vscode:vscode tmp log storage
 
 EXPOSE 3000
-ENTRYPOINT ["/rails/bin/docker-entrypoint"]
-CMD ["./bin/rails", "server"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
