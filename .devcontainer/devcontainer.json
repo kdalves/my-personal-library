@@ -1,6 +1,6 @@
 {
   "name": "Rails Dev & Prod Codespace",
-  "dockerComposeFile": ".devcontainer/docker-compose.yml",
+  "dockerComposeFile": "../docker-compose.yml",
   "service": "app-dev",
   "workspaceFolder": "/rails",
 
@@ -18,5 +18,5 @@
     "RAILS_ENV": "development"
   },
 
-  "onCreateCommand": "docker-compose -f .devcontainer/docker-compose.yml up -d db app-dev"
+  "onCreateCommand": "docker compose up -d db app-dev app-prod"
 }
