@@ -8,10 +8,7 @@
 
   "customizations": {
     "vscode": {
-      "extensions": [
-        "rebornix.Ruby",
-        "castwide.solargraph"
-      ]
+      "extensions": ["rebornix.Ruby", "castwide.solargraph"]
     }
   },
 
@@ -19,5 +16,7 @@
 
   "remoteEnv": {
     "RAILS_ENV": "development"
-  }
+  },
+
+  "onCreateCommand": "docker-compose -f .devcontainer/docker-compose.yml up -d db app-dev"
 }
