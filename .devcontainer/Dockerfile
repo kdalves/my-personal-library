@@ -60,10 +60,14 @@ RUN bundle exec bootsnap precompile app/ lib/
 #RUN ./bin/rails assets:precompile
 
 # Final stage for app image
-FROM base
+# FROM base
+#FROM docker.io/library/ruby:3.2.2-slim
+FROM base AS final
+COPY --from=build ...
+
 
 # Copy built artifacts: gems, application
-COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+#COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
 COPY --from=build /rails /rails
 
 # Run and own only the runtime files as a non-root user for security
