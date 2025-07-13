@@ -19,7 +19,5 @@
 
   "remoteEnv": {
     "RAILS_ENV": "development"
-  },
-
-  "onCreateCommand": "docker-compose up -d db app-dev app-prod"
+  }
 }
