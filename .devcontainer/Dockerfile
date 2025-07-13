@@ -6,14 +6,16 @@
 
 # For a containerized dev environment, see Dev Containers: https://guides.rubyonrails.org/getting_started_with_devcontainer.html
 
+# syntax=docker/dockerfile:1
+
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.2.2
 FROM ruby:$RUBY_VERSION-slim AS base
 
-# Rails app lives here
+# Define a working directory
 WORKDIR /rails
 
-# Install base packages
+# Install system dependencies
 RUN apt-get update -qq && apt-get install -y \
   build-essential \
   libpq-dev \
@@ -21,66 +23,55 @@ RUN apt-get update -qq && apt-get install -y \
   yarn \
   git
 
-# Give permition to codespace create directories
+# Create non-root user for Codespaces
 RUN useradd -m -u 1000 codespace
 USER codespace
 
-# Set production environment
-ENV RAILS_ENV="production" \
-    BUNDLE_DEPLOYMENT="1" \
-    BUNDLE_PATH="/usr/local/bundle" \
-    BUNDLE_WITHOUT="development"
-    
-ARG SECRET_KEY_BASE
-ENV SECRET_KEY_BASE=${SECRET_KEY_BASE}
+# Set common environment variables
+ENV BUNDLE_PATH="/usr/local/bundle"
 
+# -------------------
 # Build stage
+# -------------------
 FROM base AS build
 
-# Throw-away build stage to reduce size of final image
-RUN apt-get update -qq && apt-get install --no-install-recommends -y \
-  build-essential git libpq-dev libyaml-dev pkg-config && \
-  rm -rf /var/lib/apt/lists /var/cache/apt/archives
+WORKDIR /rails
 
-COPY Gemfile Gemfile.lock ./
-RUN gem install bundler && bundle install --with development test && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
+# Install additional build dependencies
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y libyaml-dev pkg-config && \
+    rm -rf /var/lib/apt/lists /var/cache/apt/archives
+
+# Install gems
+COPY --chown=codespace:codespace Gemfile Gemfile.lock ./
+RUN gem install bundler && \
+    bundle install --with development test && \
+    rm -rf ~/.bundle "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile
 
-# Copy application code
-COPY . .
+# Copy app source
+COPY --chown=codespace:codespace . .
 
+# Precompile bootsnap
 RUN bundle exec bootsnap precompile app/ lib/
 
+# -------------------
 # Final stage
-FROM base
-
-COPY --from=build /usr/local/bundle /usr/local/bundle
-COPY --from=build /rails /rails
-# Precompiling assets for production without requiring secret RAILS_MASTER_KEY
-#RUN ./bin/rails assets:precompile
-
-# Final stage for app image
-# FROM base
-#FROM docker.io/library/ruby:3.2.2-slim
+# -------------------
 FROM base AS final
-COPY --from=build ...
 
+WORKDIR /rails
 
-# Copy built artifacts: gems, application
-#COPY --from=build "${BUNDLE_PATH}" "${BUNDLE_PATH}"
+# Copy the app and gems from the build stage
+COPY --from=build /rails /rails
+COPY --from=build /usr/local/bundle /usr/local/bundle
 
-# Run and own only the runtime files as a non-root user for security
+# Create runtime user
 RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
     chown -R rails:rails db log storage tmp
 USER 1000:1000
 
-# Expõe a porta padrão do Rails
 EXPOSE 3000
-
-# Entrypoint prepares the database.
 ENTRYPOINT ["/rails/bin/docker-entrypoint"]
-
-# Start server via Thruster by default, this can be overwritten at runtime
 CMD ["./bin/rails", "server"]
