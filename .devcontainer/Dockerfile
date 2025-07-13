@@ -8,10 +8,10 @@
 
 # Make sure RUBY_VERSION matches the Ruby version in .ruby-version
 ARG RUBY_VERSION=3.2.2
-FROM docker.io/library/ruby:$RUBY_VERSION-slim AS base
+FROM ruby:$RUBY_VERSION-slim
 
 # Rails app lives here
-WORKDIR /rails
+WORKDIR /workspaces/my-personal-library
 
 # Install base packages
 RUN apt-get update -qq && apt-get install -y \
@@ -45,6 +45,7 @@ RUN apt-get update -qq && \
 
 # Install application gems
 COPY Gemfile Gemfile.lock ./
+RUN gem install bundler && bundle install
 RUN bundle install --with development test && \
     rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git && \
     bundle exec bootsnap precompile --gemfile

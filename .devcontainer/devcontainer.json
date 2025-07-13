@@ -1,20 +1,14 @@
 {
-  "name": "Rails Dev & Prod Codespace",
+  "name": "Rails Dev Container",
   "dockerComposeFile": ["../docker-compose.yml"],
   "service": "app-dev",
-  "workspaceFolder": "/rails",
-
-  "postCreateCommand": "bundle install && rails db:create && rails db:migrate",
-
+  "workspaceFolder": "/workspaces/my-personal-library",
+  "postCreateCommand": "bundle install && bin/rails db:prepare",
   "customizations": {
     "vscode": {
       "extensions": ["rebornix.Ruby", "castwide.solargraph"]
     }
   },
-
-  "forwardPorts": [3000, 3001, 5432],
-
-  "remoteEnv": {
-    "RAILS_ENV": "development"
-  }
+  "forwardPorts": [3000, 5432],
+  "remoteUser": "vscode"
 }
